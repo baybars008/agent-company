@@ -1,0 +1,26 @@
+# Lokal geliştirme için — Coolify'da bu dosya kullanılmaz,
+# PostgreSQL ve PostgREST ayrı servisler olarak eklenir.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: agentcompany
+      POSTGRES_USER: agentcompany
+      POSTGRES_PASSWORD: changeme
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - "5432:5432"
+
+  postgrest:
+    image: postgrest/postgrest:v12.2.3
+    environment:
+      PGRST_DB_URI: postgres://agentcompany:changeme@db:5432/agentcompany
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ""
+      PGRST_SERVER_PORT: "3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
